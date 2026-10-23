@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Archiv">
 <meta name="theme-color" id="tc" content="#0f1115">
-<title>Archiv</title>
+<title>Story-Ecke</title>
 <link rel="manifest" id="mf">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -32,8 +32,11 @@ body{background:#e9ebef;display:flex;justify-content:center;align-items:flex-sta
  body{background:#0f1115;padding:0;overflow:hidden}
  #app{max-width:none;position:fixed;inset:0;width:auto;height:auto;border:0;border-radius:0}
 }
-.top{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:calc(14px + env(safe-area-inset-top)) 14px 8px;min-height:54px}
-.top h2{font-size:16px;font-weight:600;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top{flex:0 0 auto;display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:6px;padding:calc(12px + env(safe-area-inset-top)) 12px 10px;min-height:56px;border-bottom:1px solid var(--line);background:var(--bg);z-index:5}
+.top h2{font-size:16px;font-weight:600;margin:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ib{justify-self:center}
+.top span.ib{border:0;background:none}
+.ib:disabled{opacity:.35}
 .main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .nav{flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--bg2);padding-bottom:env(safe-area-inset-bottom)}
 .nav button{flex:1;background:none;border:0;color:var(--muted);font-family:inherit;font-size:11px;padding:9px 4px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
@@ -561,13 +564,13 @@ home(){return `<div class="wrap"><h1 class="pg">Hallo</h1>
   <button class="hbtn" data-act="go" data-id="favs"><span class="dot">♥️</span><span><span class="t">Favoriten</span><span class="s">Alles mit Herz</span></span><span class="arw">›</span></button>
  </div></div>`;},
 
-search(){return `<div class="wrap"><h1 class="pg">Suche</h1>
+search(){return `<div class="wrap">
  <div class="toolbar"><input id="q" placeholder="Alles durchsuchen…" value="${esc(q)}"></div>
  <div id="results"></div></div>`;},
 
 performers(){
  const tags=allTags(),list=sortList(S.performers.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())&&(!tagFilter||p.cats.includes(tagFilter))));
- return `<div class="wrap"><h1 class="pg">Pornos</h1><p class="mut">${S.performers.length} Darstellerinnen</p>
+ return `<div class="wrap"><p class="mut">${S.performers.length} Darstellerinnen</p>
  <div class="toolbar"><input id="q" placeholder="Suchen…" value="${esc(q)}">
   <select id="sortsel"><option value="name"${sort==='name'?' selected':''}>Name</option><option value="age"${sort==='age'?' selected':''}>Alter</option>
   <option value="rating"${sort==='rating'?' selected':''}>Bewertung</option><option value="new"${sort==='new'?' selected':''}>Neueste</option></select></div>
@@ -621,7 +624,7 @@ performer(){
 
  <div class="fld"><button class="btn" data-act="delperf" data-id="${p.id}">Darstellerin löschen</button></div></div>`;},
 
-categories(){return `<div class="wrap"><h1 class="pg">Bilder</h1><p class="mut">Nach Kategorien sortiert</p>
+categories(){return `<div class="wrap"><p class="mut">Nach Kategorien sortiert</p>
  <div class="grid">${S.categories.map(c=>`<div class="tile" data-act="go" data-id="category" data-val="${c.id}">
   <div class="thumb">${img(c.img,c.name)}<button class="pen" data-act="editcat" data-id="${c.id}">✎</button>
   ${c.pics.length?`<span class="badge">${c.pics.length}</span>`:''}</div>
@@ -641,7 +644,7 @@ category(){
 profiles(){
  const s=sort==='age'?'name':sort;
  const list=sortList(S.profiles,s).filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
- return `<div class="wrap"><h1 class="pg">Steckbriefe</h1><p class="mut">${S.profiles.length} eigene Profile</p>
+ return `<div class="wrap"><p class="mut">${S.profiles.length} eigene Profile</p>
  <div class="toolbar"><input id="q" placeholder="Suchen…" value="${esc(q)}">
   <select id="sortsel"><option value="name"${s==='name'?' selected':''}>Name</option>
   <option value="rating"${s==='rating'?' selected':''}>Bewertung</option><option value="new"${s==='new'?' selected':''}>Neueste</option></select></div>
@@ -690,7 +693,7 @@ story(){
 
 favs(){
  const pf=S.performers.filter(x=>x.fav),pr=S.profiles.filter(x=>x.fav);
- return `<div class="wrap"><h1 class="pg">Favoriten</h1><p class="mut">${pf.length+pr.length} Einträge</p>
+ return `<div class="wrap"><p class="mut">${pf.length+pr.length} Einträge</p>
  ${!pf.length&&!pr.length?'<p class="hint">Tippe auf das Herz in einer Kachel.</p>':''}
  ${pf.length?`<h3 class="sec">Darstellerinnen</h3><div class="grid">${pf.map(p=>`<div class="tile" data-act="go" data-id="performer" data-val="${p.id}">
   <div class="thumb">${img(p.img,p.name)}<button class="heart on" data-act="fav" data-id="${p.id}">♥️</button></div>
@@ -701,7 +704,7 @@ favs(){
 
 settings(){const last=S.settings.lastSync?new Date(S.settings.lastSync).toLocaleString('de-DE'):'noch nie';
  const retry=/[?&]code=/.test(location.search);
- return `<div class="wrap"><h1 class="pg">Einstellungen</h1><p class="mut">Design, Daten und Konto</p>
+ return `<div class="wrap"><p class="mut">Design, Daten und Konto</p>
  <h3 class="sec">Design</h3>
  ${THEMES.map(t=>`<div class="themecard ${S.settings.theme===t.id?'on':''}" data-act="settheme" data-val="${t.id}">
   <div class="sw">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</div>
@@ -737,7 +740,7 @@ settings(){const last=S.settings.lastSync?new Date(S.settings.lastSync).toLocale
  <p class="hint">Alle Daten liegen lokal auf diesem Gerät und werden, wenn verbunden, in deinen Dropbox-App-Ordner gesichert.</p></div>`;}
 };
 
-const TITLES={performers:'Pornos',performer:'Profil',categories:'Bilder',category:'Kategorie',
+const TITLES={home:'Pornoarchiv',performers:'Pornos',performer:'Profil',categories:'Bilder',category:'Kategorie',
  profiles:'Steckbriefe',profile:'Steckbrief',story:'Story',favs:'Favoriten',search:'Suche',settings:'Einstellungen'};
 
 function render(){
@@ -750,8 +753,17 @@ function render(){
    <button data-act="home" class="${route.name==='home'?'on':''}"><b>⌂</b>Start</button>
    <button data-act="settings" class="${route.name==='settings'?'on':''}"><b>⚙</b>Einstellungen</button>`;
  }
- if(route.name==='login')top.innerHTML='<h2>Archiv</h2>';
- else top.innerHTML=`<h2>${esc(TITLES[route.name]||'')}</h2>`;
+ if(route.name==='login'){top.innerHTML='<h2>Archiv</h2>';}
+ else{
+  const links=route.name==='home'?'<span class="ib"></span>'
+   :'<button class="ib" data-act="back"'+(stack.length?'':' disabled')+'>‹</button>';
+  let rechts='';
+  if(route.name==='home')rechts='<button class="ib" data-act="logout">⏻</button>';
+  else if(route.name==='performers'||route.name==='categories'||route.name==='profiles')
+   rechts='<button class="ib" data-act="editmode">✎</button>';
+  else rechts='<span class="ib"></span>';
+  top.innerHTML=links+'<h2>'+esc(TITLES[route.name]||'')+'</h2>'+rechts;
+ }
  view.innerHTML=(VIEWS[route.name]||VIEWS.home)();
  main.scrollTop=0;
  light.classList.remove('show');
@@ -858,7 +870,6 @@ app.addEventListener('click',e=>{
  else if(a==='search'){go('search');}
  else if(a==='settings'){if(route.name!=='settings')go('settings');}
  else if(a==='editmode'){say('Bearbeiten-Modus folgt');}
- else if(a==='go'){go(id,v);}
  else if(a==='acc'){acc[v]=!acc[v];render();}
  else if(a==='close'){closeModal();}
  else if(a==='saveki'){const k=(($('kikey')||{}).value||'').trim();
