@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Archiv">
-<meta name="theme-color" id="tc" content="#0e060b">
+<meta name="theme-color" id="tc" content="#0f1115">
 <title>Archiv</title>
 <link rel="manifest" id="mf">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -26,10 +26,11 @@ body{background:#e9ebef;display:flex;justify-content:center;align-items:flex-sta
 }
 #app[data-theme="hell"]{--bg:#f7f8fa;--bg2:#fff;--card:#fff;--text:#171a20;--muted:#71767f;--accent:#2f6feb;--accent2:#6f9bff;--line:#e4e6eb}
 #app[data-theme="dunkel"]{--bg:#0f1115;--bg2:#171a21;--card:#1a1e26;--text:#eef1f6;--muted:#8b93a1;--accent:#6ea8fe;--accent2:#4b7bec;--line:#242a34}
+#app[data-theme="sinnlich"]{--bg:#0e060b;--bg2:#1a0d15;--card:#1e0f18;--text:#fdf2f7;--muted:#a9869a;--accent:#ff2d78;--accent2:#b3134b;--line:#33182a}
 #app[data-theme="erdig"]{--bg:#f1f0ea;--bg2:#faf9f4;--card:#faf9f4;--text:#31342a;--muted:#7d8172;--accent:#6b7f5e;--accent2:#8a6f52;--line:#ddd9cc}
 @media(max-width:480px){
- body{background:#0e060b;padding:0}
- #app{max-width:none;height:100vh;height:100dvh;border:0;border-radius:0}
+ body{background:#0f1115;padding:0;overflow:hidden}
+ #app{max-width:none;position:fixed;inset:0;width:auto;height:auto;border:0;border-radius:0}
 }
 .top{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:calc(14px + env(safe-area-inset-top)) 14px 8px;min-height:54px}
 .top h2{font-size:16px;font-weight:600;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -168,7 +169,7 @@ label.fl{display:block;font-size:12px;color:var(--muted);margin-top:13px}
 </style>
 </head>
 <body>
-<div id="app" data-theme="sinnlich">
+<div id="app" data-theme="dunkel">
   <div class="top" id="top"></div>
   <div class="main" id="main"><div id="view"></div></div>
   <nav class="nav" id="nav"></nav>
@@ -213,7 +214,7 @@ const dbSet=(k,v)=>new Promise(res=>{
 
 function F(label,value,type){return{id:uid('fl'),label:label,value:value||'',type:type||'text'};}
 function DEFAULTS(){return{
- settings:{theme:'sinnlich',user:'Lafai',sort:'name',ff:true,rev:null,lastSync:0},
+ settings:{theme:'dunkel',user:'Lafai',sort:'name',ff:true,rev:null,lastSync:0},
  performers:[
   {id:'p1',name:'Eva Elfi',age:28,height:'1,65 m',hair:'Blond',weight:'55 kg',bust:'75C',img:P('evaelfi9'),
    cats:['Blowjob','Anal','Girlfriend','Outdoor'],rating:5,fav:true,notes:'',
@@ -306,13 +307,13 @@ async function swAnmelden(){
 
 /* ---------- Dropbox ---------- */
 const DBX_KEY='tmebvc4g71gd61z';
-const DBX_RED=new URL('./',location.href).href;           /* FIX: App-Ordner statt Domain-Wurzel */
+const DBX_RED=new URL('./',location.href).href;
 const DBX_SCOPE='files.metadata.read files.content.read files.content.write';
-let dbx={refresh:null,access:null,exp:0},dbxErr='',cspHit='',weg='direkt';  /* FIX: Direktweg zuerst */
+let dbx={refresh:null,access:null,exp:0},dbxErr='',cspHit='',weg='direkt';
 const b64url=b=>btoa(String.fromCharCode.apply(null,new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const TOKEN_URLS=['https://api.dropboxapi.com/oauth2/token','https://api.dropbox.com/oauth2/token'];
-const PX=u=>'./__p?u='+encodeURIComponent(u);             /* FIX: relativ, damit im SW-Scope */
-const FREMD=u=>'https://corsproxy.io/?key=fc490158&url='+encodeURIComponent(u);  /* FIX: Key */
+const PX=u=>'./__p?u='+encodeURIComponent(u);
+const FREMD=u=>'https://corsproxy.io/?key=fc490158&url='+encodeURIComponent(u);
 
 document.addEventListener('securitypolicyviolation',e=>{
   cspHit=(e.violatedDirective||'?')+' → '+(e.blockedURI||'?');
@@ -354,7 +355,7 @@ async function dbxConnect(){
     try{localStorage.setItem('dbxv',v);}catch(e){}
     location.href='https://www.dropbox.com/oauth2/authorize?'+new URLSearchParams({
       client_id:DBX_KEY,response_type:'code',code_challenge:h,code_challenge_method:'S256',
-      token_access_type:'offline',scope:DBX_SCOPE,redirect_uri:DBX_RED});   /* FIX: scope ergänzt */
+      token_access_type:'offline',scope:DBX_SCOPE,redirect_uri:DBX_RED});
   }catch(e){dbxErr='Start fehlgeschlagen: '+(e&&e.message?e.message:e);render();}
 }
 
@@ -410,7 +411,7 @@ async function dbxTest(){
     const r=await fetch(PX('https://api.github.com/zen'));
     out.push('Vermittler-Test: Kopf='+(r.headers.get('X-Proxy')||'nein')+' Status='+r.status);
   }catch(e){out.push('Vermittler-Test: '+((e&&e.message)||e));}
-  out.push('CSP-Treffer: '+(cspHit||'keine'));          /* FIX: Anzeige ergänzt */
+  out.push('CSP-Treffer: '+(cspHit||'keine'));
   dbxErr=out.join('   ||   ');render();
 }
 
@@ -440,7 +441,7 @@ async function dbxMeta(path){
   const t=await dbxToken();if(!t)return null;
   const r=await dbxFetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',
     headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({path:path})});
-  if(r.status===409)return null;                                    /* FIX: nur "gibt es nicht" */
+  if(r.status===409)return null;
   if(!r.ok)throw new Error('meta '+r.status+': '+(await r.text()).slice(0,140));
   return await r.json();
 }
@@ -490,8 +491,8 @@ async function syncNow(manual){
   syncing=false;if(route.name==='settings')render();
 }
 
-/* ---------- KI (Venice) ---------- */            /* KI */
-const VENICE_KEY='';                                /* KI: Key von venice.ai/settings/api */
+/* ---------- KI (Venice) ---------- */
+const VENICE_KEY='';
 const KI_URL='https://api.venice.ai/api/v1/chat/completions';
 const KI_MODELL='venice-uncensored-1-2';
 
@@ -741,13 +742,12 @@ const TITLES={performers:'Pornos',performer:'Profil',categories:'Bilder',categor
 
 function render(){
  app.dataset.theme=S.settings.theme;
- tc.setAttribute('content',THEME_COLORS[S.settings.theme]||'#0e060b');
+ tc.setAttribute('content',THEME_COLORS[S.settings.theme]||'#0f1115');
  const showNav=route.name!=='login';
  nav.style.display=showNav?'':'none';
  if(showNav){
   nav.innerHTML=`<button data-act="back" ${stack.length?'':'disabled'}><b>‹</b>Zurück</button>
    <button data-act="home" class="${route.name==='home'?'on':''}"><b>⌂</b>Start</button>
-   <button data-act="search" class="${route.name==='search'?'on':''}"><b>⌕</b>Suche</button>
    <button data-act="settings" class="${route.name==='settings'?'on':''}"><b>⚙</b>Einstellungen</button>`;
  }
  if(route.name==='login')top.innerHTML='<h2>Archiv</h2>';
@@ -1098,7 +1098,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 (async function init(){
  db=await openDB();
  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
- try{const lk=localStorage.getItem('venice_key');if(lk)window.VENICE_KEY=lk;}catch(e){}   /* KI */
+ try{const lk=localStorage.getItem('venice_key');if(lk)window.VENICE_KEY=lk;}catch(e){}
  await load();
  sort=S.settings.sort||'name';
  route={name:S.settings.user?'home':'login'};
