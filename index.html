@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Archiv">
+<meta name="theme-color" id="tc" content="#0e060b">
+<title>Archiv</title>
+<link rel="manifest" id="mf">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#e9ebef;display:flex;justify-content:center;align-items:flex-start;padding:18px 0;
+ font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+#app{
+ --bg:#0e060b;--bg2:#1a0d15;--card:#1e0f18;--text:#fdf2f7;--muted:#a9869a;
+ --accent:#ff2d78;--accent2:#b3134b;--line:#33182a;--r:16px;
+ width:100%;max-width:400px;height:720px;display:flex;flex-direction:column;
+ background:var(--bg);color:var(--text);font-size:15px;overflow:hidden;
+ border:1px solid var(--line);border-radius:26px;position:relative;
+ transition:background .25s,color .25s;
+}
+#app[data-theme="hell"]{--bg:#f7f8fa;--bg2:#fff;--card:#fff;--text:#171a20;--muted:#71767f;--accent:#2f6feb;--accent2:#6f9bff;--line:#e4e6eb}
+#app[data-theme="dunkel"]{--bg:#0f1115;--bg2:#171a21;--card:#1a1e26;--text:#eef1f6;--muted:#8b93a1;--accent:#6ea8fe;--accent2:#4b7bec;--line:#242a34}
+#app[data-theme="erdig"]{--bg:#f1f0ea;--bg2:#faf9f4;--card:#faf9f4;--text:#31342a;--muted:#7d8172;--accent:#6b7f5e;--accent2:#8a6f52;--line:#ddd9cc}
+@media(max-width:480px){
+ body{background:#0e060b;padding:0}
+ #app{max-width:none;height:100vh;height:100dvh;border:0;border-radius:0}
+}
+.top{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:calc(14px + env(safe-area-inset-top)) 14px 8px;min-height:54px}
+.top h2{font-size:16px;font-weight:600;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.nav{flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--bg2);padding-bottom:env(safe-area-inset-bottom)}
+.nav button{flex:1;background:none;border:0;color:var(--muted);font-family:inherit;font-size:11px;padding:9px 4px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button b{font-size:18px;font-weight:400;line-height:1}
+.nav button.on{color:var(--accent)}
+.nav button:disabled{opacity:.35}
+.ib{width:34px;height:34px;border-radius:11px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 34px;font-family:inherit}
+.ib:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{padding:6px 15px 26px}
+h1.pg{font-size:22px;font-weight:600;margin:0 0 3px}
+.mut{color:var(--muted);font-size:13px;margin:0}
+h3.sec{font-size:14px;font-weight:600;margin:22px 0 9px;color:var(--muted)}
+.btn{display:block;width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center}
+.btn.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.s{padding:9px 13px;font-size:13px;width:auto;display:inline-block}
+input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:15px;font-family:inherit;margin-top:6px;-webkit-appearance:none}
+select{cursor:pointer}
+textarea{resize:vertical}
+label.fl{display:block;font-size:12px;color:var(--muted);margin-top:13px}
+.fld{margin-top:13px}
+.row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:13px}
+.row input{width:auto;margin:0}
+.login{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:26px}
+.logo{width:56px;height:56px;border-radius:18px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin-bottom:16px}
+.err{color:#ff5c5c;font-size:13px;margin:10px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:.18s;position:relative}
+.tile:hover{transform:translateY(-3px);border-color:var(--accent)}
+.thumb{aspect-ratio:1/1;background:linear-gradient(140deg,var(--accent2),var(--accent));position:relative;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .lb{padding:9px 11px 11px;font-size:13px;font-weight:600;line-height:1.25}
+.tile .sub{font-size:11px;color:var(--muted);font-weight:400;margin-top:3px}
+.pen{position:absolute;top:7px;right:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;font-size:12px;cursor:pointer;z-index:2}
+.heart{position:absolute;top:7px;left:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;font-size:12px;cursor:pointer;z-index:2}
+.heart.on{background:var(--accent)}
+.badge{position:absolute;bottom:7px;left:7px;background:rgba(0,0,0,.65);color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;z-index:2}
+.homegrid{display:grid;gap:11px;margin-top:15px}
+.hbtn{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:17px 15px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;font-family:inherit;color:var(--text);transition:.18s}
+.hbtn:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hbtn .dot{width:42px;height:42px;border-radius:13px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;font-size:18px;background:linear-gradient(140deg,var(--accent2),var(--accent));color:#fff}
+.hbtn .t{font-size:16px;font-weight:600;display:block}
+.hbtn .s{font-size:12px;color:var(--muted)}
+.hbtn .arw{margin-left:auto;color:var(--muted)}
+.hero{height:200px;border-radius:18px;overflow:hidden;position:relative;margin-top:12px;background:linear-gradient(140deg,var(--accent2),var(--accent))}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero .ov{position:absolute;inset:auto 0 0 0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.hero h1{color:#fff;font-size:23px;margin:0}
+.hero .sub{color:rgba(255,255,255,.85);font-size:13px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:9px;margin-top:14px}
+.fact{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:10px 12px;overflow:hidden}
+.fact .k{font-size:11px;color:var(--muted)}
+.fact .v{font-size:14px;font-weight:600;margin-top:3px;word-break:break-word}
+.fact .v a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+.chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);font-size:13px;cursor:pointer;color:var(--text);font-family:inherit;display:inline-flex;gap:6px;align-items:center}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip.add{border-style:dashed;color:var(--muted)}
+.chip .x{opacity:.65;font-size:11px}
+.acc{border:1px solid var(--line);border-radius:16px;background:var(--card);margin-top:12px;overflow:hidden}
+.acc>button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:15px 16px;background:none;border:0;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.acc>button .cnt{font-size:11px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-left:8px}
+.acc .bd{display:none;padding:0 14px 14px}
+.acc.open .bd{display:block}
+.film{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:13px;background:var(--bg2);border:1px solid var(--line);margin-bottom:8px}
+.film .ttl{flex:1;min-width:0}
+.film .ttl a{color:var(--text);font-size:14px;font-weight:600;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.film .ttl a:hover{color:var(--accent)}
+.film .meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap}
+.pill{background:var(--accent2);color:#fff;border-radius:999px;padding:2px 8px;font-size:10px}
+.pill.d{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.stars{display:flex;gap:2px}
+.stars span{cursor:inherit;font-size:14px;color:var(--line)}
+.stars.live span{cursor:pointer}
+.stars span.on{color:#ffb020}
+.storyrow{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:var(--bg2);border:1px solid var(--line);margin-bottom:8px;cursor:pointer}
+.storyrow:hover{border-color:var(--accent)}
+.storyrow .st{flex:1;min-width:0}
+.storyrow .st b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.storyrow .st i{font-size:11px;color:var(--muted);font-style:normal}
+.formbox{border:1px dashed var(--line);border-radius:14px;padding:12px;margin-top:10px}
+.pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:10px}
+.pic{aspect-ratio:1/1;border-radius:12px;overflow:hidden;position:relative;background:var(--bg2);border:1px solid var(--line);cursor:pointer}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pic .x{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;font-size:12px;cursor:pointer}
+.pic .tag{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.65);color:#fff;font-size:9px;border-radius:999px;padding:1px 6px}
+.upload{display:flex;align-items:center;justify-content:center;gap:8px;border:1px dashed var(--line);border-radius:14px;padding:17px;margin-top:11px;cursor:pointer;color:var(--muted);font-size:13px;text-align:center}
+.upload:hover{border-color:var(--accent);color:var(--accent)}
+.toolbar{display:flex;gap:8px;margin-top:12px}
+.toolbar input,.toolbar select{margin:0}
+.toolbar select{width:auto;font-size:13px;padding:10px}
+.emptytile{border:1px dashed var(--line);border-radius:var(--r);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:25px;cursor:pointer;min-height:110px}
+.emptytile:hover{border-color:var(--accent);color:var(--accent)}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;z-index:40}
+.modal.show{display:block}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:14px;width:100%;max-width:376px;margin:0 auto}
+.boxhdr{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding-bottom:10px;z-index:3}
+.boxhdr h1{font-size:18px;margin:0;flex:1}
+.boxhdr .x2{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:16px;cursor:pointer;flex:0 0 32px}
+.light{position:absolute;inset:0;background:rgba(0,0,0,.93);display:none;align-items:center;justify-content:center;z-index:60;overflow:hidden}
+.light.show{display:flex}
+.light img{max-width:94%;max-height:70%;border-radius:12px;user-select:none}
+.light .nav2{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.16);color:#fff;border:0;width:38px;height:38px;border-radius:50%;font-size:19px;cursor:pointer}
+.light .nav2.l{left:10px}.light .nav2.r{right:10px}
+.light .cl{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.16);color:#fff;border:0;width:34px;height:34px;border-radius:50%;font-size:17px;cursor:pointer}
+.light .cap{position:absolute;bottom:14px;color:#fff;font-size:12px;opacity:.75}
+.storyread{font-size:16px;line-height:1.72;margin-top:16px;white-space:pre-wrap}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sugg button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
+.sugg button:hover{border-color:var(--accent);color:var(--accent)}
+.frow{display:flex;gap:6px;align-items:flex-start;margin-top:8px}
+.frow input,.frow select{flex:1;margin:0}
+.frow .lb2{flex:0 0 88px}
+.frow .ty{flex:0 0 86px;font-size:12px;padding:12px 6px}
+.frow .del{background:none;border:0;color:var(--muted);font-size:16px;cursor:pointer;flex:0 0 20px;padding-top:10px}
+.themecard{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:9px;cursor:pointer;background:var(--bg2)}
+.themecard.on{border-color:var(--accent)}
+.sw{display:flex;gap:4px}
+.sw i{width:20px;height:20px;border-radius:6px;display:block}
+.themecard .tn{font-size:14px;font-weight:600}
+.themecard .td{font-size:11px;color:var(--muted)}
+.toast{position:absolute;left:50%;transform:translateX(-50%) translateY(20px);bottom:70px;background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:90;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.55}
+.syncst{font-size:12px;color:var(--muted);margin:6px 0 10px;line-height:1.5}
+.syncerr{font-size:12px;color:#ff5c5c;margin:6px 0 10px;line-height:1.5;word-break:break-word}
+.resgrp{margin-top:18px}
+.resgrp h3{font-size:13px;color:var(--muted);margin:0 0 6px;font-weight:600}
+.res{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);margin-bottom:6px;cursor:pointer}
+.res img,.res .ph{width:38px;height:38px;border-radius:9px;object-fit:cover;background:var(--accent2);flex:0 0 38px}
+.res b{font-size:13px}
+.res i{font-size:11px;color:var(--muted);font-style:normal;display:block}
+</style>
+</head>
+<body>
+<div id="app" data-theme="sinnlich">
+  <div class="top" id="top"></div>
+  <div class="main" id="main"><div id="view"></div></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="modal" id="modal"></div>
+  <div class="light" id="light"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const app=$('app'),top=$('top'),view=$('view'),main=$('main'),nav=$('nav'),
+ modal=$('modal'),light=$('light'),toast=$('toast'),tc=$('tc');
+
+const uid=p=>p+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isUrl=v=>/^(https?:|data:|blob:)/.test(String(v||''));
+const find=(a,id)=>a.filter(x=>x.id===id)[0];
+const P=s=>'https://picsum.photos/seed/'+s+'/800/800';
+
+let IMG={};
+const srcOf=v=>!v?'':(isUrl(v)?v:(IMG[v]||''));
+const img=(v,alt)=>'<img src="'+esc(srcOf(v))+'" alt="'+esc(alt||'')+'" loading="lazy" onerror="this.remove()">';
+
+let db=null;
+function openDB(){return new Promise(res=>{
+  let r;try{r=indexedDB.open('archiv',1);}catch(e){return res(null);}
+  r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);
+});}
+const dbGet=k=>new Promise(res=>{
+  if(!db){try{return res(localStorage.getItem('k_'+k));}catch(e){return res(null);}}
+  try{const q=db.transaction('kv','readonly').objectStore('kv').get(k);
+   q.onsuccess=()=>res(q.result===undefined?null:q.result);q.onerror=()=>res(null);}catch(e){res(null);}
+});
+const dbSet=(k,v)=>new Promise(res=>{
+  if(!db){try{localStorage.setItem('k_'+k,typeof v==='string'?v:JSON.stringify(v));return res(true);}catch(e){return res(false);}}
+  try{const q=db.transaction('kv','readwrite').objectStore('kv').put(v,k);
+   q.onsuccess=()=>res(true);q.onerror=()=>res(false);}catch(e){res(false);}
+});
+
+function F(label,value,type){return{id:uid('fl'),label:label,value:value||'',type:type||'text'};}
+function DEFAULTS(){return{
+ settings:{theme:'sinnlich',user:'Lafai',sort:'name',ff:true,rev:null,lastSync:0},
+ performers:[
+  {id:'p1',name:'Eva Elfi',age:28,height:'1,65 m',hair:'Blond',weight:'55 kg',bust:'75C',img:P('evaelfi9'),
+   cats:['Blowjob','Anal','Girlfriend','Outdoor'],rating:5,fav:true,notes:'',
+   films:[{id:'f1',t:'Blowjob in Paris',d:'24:12',c:'Blowjob',u:'https://www.pornhub.com'},
+          {id:'f2',t:'Sommer im Garten',d:'31:40',c:'Outdoor',u:'https://www.pornhub.com'}],pics:[]},
+  {id:'p2',name:'Lena Kort',age:24,height:'1,70 m',hair:'Braun',weight:'58 kg',bust:'80B',img:P('lenakort4'),
+   cats:['Anal','Deep Throat','Sauna'],rating:4,fav:false,notes:'',
+   films:[{id:'f3',t:'Sauna Sessions',d:'18:05',c:'Sauna',u:'https://www.pornhub.com'}],pics:[]},
+  {id:'p3',name:'Mia Sole',age:31,height:'1,62 m',hair:'Schwarz',weight:'52 kg',bust:'70A',img:P('miasole7'),
+   cats:['Girlfriend','Outdoor','Blowjob'],rating:3,fav:false,notes:'',films:[],pics:[]},
+  {id:'p4',name:'Nina Brandt',age:26,height:'1,75 m',hair:'Rot',weight:'61 kg',bust:'85D',img:P('ninabrandt2'),
+   cats:['Anal','Deep Throat'],rating:4,fav:false,notes:'',films:[],pics:[]}
+ ],
+ categories:[
+  {id:'c1',name:'Anal',img:P('catanal'),pics:[]},
+  {id:'c2',name:'Outdoor',img:P('catoutdoor'),pics:[]},
+  {id:'c3',name:'Sauna',img:P('catsauna'),pics:[]},
+  {id:'c4',name:'Deep Throat',img:P('catdeep'),pics:[]},
+  {id:'c5',name:'Girlfriend',img:P('catgf'),pics:[]},
+  {id:'c6',name:'Blowjob',img:P('catbj'),pics:[]}
+ ],
+ profiles:[
+  {id:'s1',name:'Clara Winter',img:P('claraw'),rating:5,fav:false,
+   fields:[F('Alter','31','number'),F('Größe','1,68 m'),F('Haarfarbe','Dunkelbraun'),F('Figur','schlank'),
+           F('Wohnort','Hamburg'),F('Beruf','Architektin'),F('Vorlieben','Kaffee, Regen, lange Nächte','long')],
+   stories:[{id:'st1',title:'Der Balkon gegenüber',date:'12.03.',text:'Clara stand zum ersten Mal im Sommer auf dem Balkon gegenüber. Sie trug ein zu großes Hemd und rauchte, obwohl sie behauptete, nicht zu rauchen.\n\nIch sah hinüber, sie hob die Hand, mehr aus Gewohnheit als aus Absicht. Danach stand sie jeden Abend dort, immer zur selben Zeit, als hätte sie einen Termin mit mir.'}]},
+  {id:'s2',name:'Sophie Berg',img:P('sophieb'),rating:4,fav:false,
+   fields:[F('Alter','27','number'),F('Größe','1,72 m'),F('Haarfarbe','Blond'),F('Figur','sportlich'),F('Wohnort','München'),F('Beruf','Physiotherapeutin')],
+   stories:[]},
+  {id:'s3',name:'Amelie Roth',img:P('amelier'),rating:3,fav:false,
+   fields:[F('Alter','35','number'),F('Größe','1,60 m'),F('Haarfarbe','Rot'),F('Figur','kurvig'),F('Wohnort','Wien'),F('Beruf','Kellnerin')],
+   stories:[]}
+ ]
+};}
+function normalize(s){
+  s=s||{};
+  if(!s.settings||typeof s.settings!=='object')s.settings={};
+  const d=DEFAULTS().settings;
+  Object.keys(d).forEach(k=>{if(s.settings[k]===undefined)s.settings[k]=d[k];});
+  if(!Array.isArray(s.performers))s.performers=[];
+  if(!Array.isArray(s.categories))s.categories=[];
+  if(!Array.isArray(s.profiles))s.profiles=[];
+  s.performers.forEach(p=>{if(!Array.isArray(p.cats))p.cats=[];if(!Array.isArray(p.films))p.films=[];if(!Array.isArray(p.pics))p.pics=[];});
+  s.profiles.forEach(p=>{if(!Array.isArray(p.fields))p.fields=[];if(!Array.isArray(p.stories))p.stories=[];});
+  s.categories.forEach(c=>{if(!Array.isArray(c.pics))c.pics=[];});
+  return s;
+}
+let S=null, imgDirty=false, ft=null;
+async function load(){
+  const st=await dbGet('state');
+  try{S=st?JSON.parse(st):null;}catch(e){S=null;}
+  if(!S||!S.performers||!S.profiles||!S.categories)S=DEFAULTS();
+  S=normalize(S);
+  const im=await dbGet('images');
+  try{IMG=im?JSON.parse(im):{};}catch(e){IMG={};}
+}
+async function flush(){await dbSet('state',JSON.stringify(S));
+  if(imgDirty){imgDirty=false;await dbSet('images',JSON.stringify(IMG));}}
+function save(){clearTimeout(ft);ft=setTimeout(async()=>{ft=null;await flush();queueSync();},350);}
+async function flushNow(){if(ft){clearTimeout(ft);ft=null;}await flush();}
+const saveImgs=()=>{imgDirty=true;save();};
+function gc(){const used=new Set();
+  S.performers.forEach(p=>{if(!isUrl(p.img))used.add(p.img);p.pics.forEach(x=>{if(!isUrl(x.src))used.add(x.src);});});
+  S.categories.forEach(c=>{if(!isUrl(c.img))used.add(c.img);c.pics.forEach(x=>{if(!isUrl(x.src))used.add(x.src);});});
+  S.profiles.forEach(p=>{if(!isUrl(p.img))used.add(p.img);});
+  let ch=false;Object.keys(IMG).forEach(k=>{if(!used.has(k)){delete IMG[k];ch=true;}});
+  if(ch)imgDirty=true;
+}
+const say=t=>{toast.textContent=t;toast.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>toast.classList.remove('show'),4000);};
+
+/* ---------- Vermittler ---------- */
+let swStatus='';
+async function swAnmelden(){
+  if(!('serviceWorker' in navigator)){swStatus='nicht vorhanden';return;}
+  try{
+    await navigator.serviceWorker.register('sw.js',{scope:'./'});
+    swStatus='normal';
+    return;
+  }catch(e1){
+    try{
+      const code=await (await fetch('./sw.js',{cache:'no-store'})).text();
+      const url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
+      await navigator.serviceWorker.register(url,{scope:'./'});
+      swStatus='aus Speicher';
+    }catch(e2){
+      swStatus='Fehler: '+((e1&&e1.message)||e1)+' / '+((e2&&e2.message)||e2);
+    }
+  }
+}
+
+/* ---------- Dropbox ---------- */
+const DBX_KEY='tmebvc4g71gd61z';
+const DBX_RED=new URL('./',location.href).href;           /* FIX: App-Ordner statt Domain-Wurzel */
+const DBX_SCOPE='files.metadata.read files.content.read files.content.write';
+let dbx={refresh:null,access:null,exp:0},dbxErr='',cspHit='',weg='direkt';  /* FIX: Direktweg zuerst */
+const b64url=b=>btoa(String.fromCharCode.apply(null,new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const TOKEN_URLS=['https://api.dropboxapi.com/oauth2/token','https://api.dropbox.com/oauth2/token'];
+const PX=u=>'./__p?u='+encodeURIComponent(u);             /* FIX: relativ, damit im SW-Scope */
+const FREMD=u=>'https://corsproxy.io/?key=fc490158&url='+encodeURIComponent(u);  /* FIX: Key */
+
+document.addEventListener('securitypolicyviolation',e=>{
+  cspHit=(e.violatedDirective||'?')+' → '+(e.blockedURI||'?');
+});
+
+async function ueberWeg(w,url,opts){
+  if(w==='sw'){
+    if(!navigator.serviceWorker.controller)throw new Error('kein Vermittler aktiv');
+    const r=await fetch(PX(url),opts);
+    if(r.headers.get('X-Proxy')!=='1')throw new Error('Vermittler antwortet nicht');
+    if(r.status===599)throw new Error('Vermittler: '+(await r.text()).slice(0,140));
+    return r;
+  }
+  if(w==='direkt')return await fetch(url,opts);
+  return await fetch(FREMD(url),opts);
+}
+async function dbxFetch(url,opts){
+  const order=weg==='direkt'?['direkt','sw','fremd']:weg==='fremd'?['fremd','sw','direkt']:['sw','direkt','fremd'];
+  const errs=[];
+  for(const w of order){
+    try{const r=await ueberWeg(w,url,opts);weg=w;return r;}
+    catch(e){errs.push(w+': '+((e&&e.message)||e));}
+  }
+  throw new Error(errs.join(' | '));
+}
+async function dbxPost(url,body){
+  return await dbxFetch(url,{method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:body});
+}
+
+async function dbxConnect(){
+  dbxErr='';
+  try{
+    if(!(window.crypto&&crypto.subtle)){dbxErr='Kein sicherer Kontext (https nötig)';render();return;}
+    const v=b64url(crypto.getRandomValues(new Uint8Array(48)));
+    const h=b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));
+    await dbSet('dbxv',v);
+    try{sessionStorage.setItem('dbxv',v);}catch(e){}
+    try{localStorage.setItem('dbxv',v);}catch(e){}
+    location.href='https://www.dropbox.com/oauth2/authorize?'+new URLSearchParams({
+      client_id:DBX_KEY,response_type:'code',code_challenge:h,code_challenge_method:'S256',
+      token_access_type:'offline',scope:DBX_SCOPE,redirect_uri:DBX_RED});   /* FIX: scope ergänzt */
+  }catch(e){dbxErr='Start fehlgeschlagen: '+(e&&e.message?e.message:e);render();}
+}
+
+async function dbxExchange(code,v){
+  const body=new URLSearchParams({code:code,grant_type:'authorization_code',client_id:DBX_KEY,
+    code_verifier:v,redirect_uri:DBX_RED}).toString();
+  let last='';
+  for(const url of TOKEN_URLS){
+    const host=url.replace('https://','').split('/')[0];
+    try{
+      const r=await dbxPost(url,body);
+      const txt=await r.text();
+      let j={};try{j=JSON.parse(txt);}catch(e){}
+      if(j.refresh_token)return {ok:true,data:j};
+      last='['+host+'] HTTP '+r.status+': '+((j.error_description||j.error||txt)||'').slice(0,200);
+    }catch(e){last='['+host+'] '+(e&&e.message?e.message:e);}
+  }
+  return {ok:false,msg:last+'  (Weg: '+weg+')'};
+}
+
+async function dbxHandleRedirect(){
+  let p;try{p=new URLSearchParams(location.search);}catch(e){return false;}
+  const code=p.get('code'),err=p.get('error');
+  if(!code){if(err)dbxErr='Dropbox meldet: '+err;return false;}
+  let v=await dbGet('dbxv');
+  if(!v){try{v=sessionStorage.getItem('dbxv');}catch(e){}}
+  if(!v){try{v=localStorage.getItem('dbxv');}catch(e){}}
+  if(!v){dbxErr='Prüfschlüssel verloren – nochmal auf „Mit Dropbox verbinden" tippen.';return true;}
+  const res=await dbxExchange(code,v);
+  if(res.ok){
+    dbx={refresh:res.data.refresh_token,access:res.data.access_token,exp:Date.now()+((res.data.expires_in||14400)*1000)};
+    dbxErr='';await dbSet('dbx',JSON.stringify(dbx));
+    try{history.replaceState(null,'',DBX_RED);}catch(e){}
+  }else{dbxErr='Austausch fehlgeschlagen: '+res.msg;}
+  return true;
+}
+
+async function dbxTest(){
+  dbxErr='Teste…';cspHit='';render();
+  const out=[];
+  out.push('Vermittler: '+(swStatus||'unbekannt'));
+  out.push('aktiv: '+(navigator.serviceWorker&&navigator.serviceWorker.controller?'ja':'nein'));
+  try{const rs=await navigator.serviceWorker.getRegistrations();out.push('angemeldet: '+rs.length);}catch(e){out.push('angemeldet: ?');}
+  const rdy=await Promise.race([
+    navigator.serviceWorker.ready.then(()=>'bereit').catch(()=>'Fehler'),
+    new Promise(r=>setTimeout(()=>r('Zeit abgelaufen'),2500))]);
+  out.push('bereit: '+rdy);
+  try{
+    const r=await fetch('./index.html?c='+Date.now());
+    out.push('CSP: '+(r.headers.get('content-security-policy')||'keine'));
+  }catch(e){out.push('CSP: '+((e&&e.message)||e));}
+  try{
+    const r=await fetch(PX('https://api.github.com/zen'));
+    out.push('Vermittler-Test: Kopf='+(r.headers.get('X-Proxy')||'nein')+' Status='+r.status);
+  }catch(e){out.push('Vermittler-Test: '+((e&&e.message)||e));}
+  out.push('CSP-Treffer: '+(cspHit||'keine'));          /* FIX: Anzeige ergänzt */
+  dbxErr=out.join('   ||   ');render();
+}
+
+async function killSW(){
+  dbxErr='Vermittler wird entfernt…';render();
+  try{const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs)await r.unregister();}catch(e){}
+  try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}}catch(e){}
+  dbxErr='Entfernt. Seite lädt neu…';render();
+  setTimeout(()=>{try{location.reload();}catch(e){}},1200);
+}
+
+async function dbxToken(){
+  if(dbx.access&&Date.now()<dbx.exp-60000)return dbx.access;
+  if(!dbx.refresh)return null;
+  const body='grant_type=refresh_token&refresh_token='+encodeURIComponent(dbx.refresh)+'&client_id='+DBX_KEY;
+  for(const url of TOKEN_URLS){
+    try{
+      const r=await dbxPost(url,body);
+      const j=await r.json();
+      if(j.access_token){dbx.access=j.access_token;dbx.exp=Date.now()+((j.expires_in||14400)*1000);await dbSet('dbx',JSON.stringify(dbx));return dbx.access;}
+      dbxErr='Token erneuern: '+(j.error_description||j.error||'unbekannt');
+    }catch(e){dbxErr='Token erneuern fehlgeschlagen: '+((e&&e.message)||e);}
+  }
+  return null;
+}
+async function dbxMeta(path){
+  const t=await dbxToken();if(!t)return null;
+  const r=await dbxFetch('https://api.dropboxapi.com/2/files/get_metadata',{method:'POST',
+    headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({path:path})});
+  if(r.status===409)return null;                                    /* FIX: nur "gibt es nicht" */
+  if(!r.ok)throw new Error('meta '+r.status+': '+(await r.text()).slice(0,140));
+  return await r.json();
+}
+async function dbxUpload(path,text){
+  const t=await dbxToken();if(!t)return null;
+  const r=await dbxFetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',
+    headers:{'Authorization':'Bearer '+t,'Content-Type':'application/octet-stream',
+      'Dropbox-API-Arg':JSON.stringify({path:path,mode:'overwrite',mute:true,autorename:false})},
+    body:text});
+  if(!r.ok){const x=await r.text();throw new Error('Upload '+r.status+': '+x.slice(0,140));}
+  return (await r.json()).server_modified;
+}
+async function dbxDownload(path){
+  const t=await dbxToken();if(!t)return null;
+  const r=await dbxFetch('https://content.dropboxapi.com/2/files/download',{method:'POST',
+    headers:{'Authorization':'Bearer '+t,'Dropbox-API-Arg':JSON.stringify({path:path})}});
+  if(r.status===409)return null;
+  if(!r.ok)throw new Error('Download '+r.status);
+  return await r.text();
+}
+let syncing=false,st=null,imgPushed=true;
+function queueSync(){if(!dbx.refresh)return;clearTimeout(st);st=setTimeout(()=>syncNow(false),2500);}
+async function syncNow(manual){
+  if(!dbx.refresh){if(manual)say('Nicht mit Dropbox verbunden');return;}
+  if(syncing)return;syncing=true;
+  if(manual)say('Synchronisiere…');
+  try{
+    await flushNow();
+    const meta=await dbxMeta('/state.json');
+    const rev=meta?meta.server_modified:null;
+    if(rev&&rev!==S.settings.rev){
+      const txt=await dbxDownload('/state.json');
+      if(txt){S=normalize(JSON.parse(txt));S.settings.rev=rev;
+        const im=await dbxDownload('/images.json');
+        if(im){try{IMG=JSON.parse(im);}catch(e){}}
+        imgPushed=true;
+        await dbSet('state',JSON.stringify(S));await dbSet('images',JSON.stringify(IMG));
+        S.settings.lastSync=Date.now();dbxErr='';render();say('Aktualisiert');}
+    }else{
+      const nr=await dbxUpload('/state.json',JSON.stringify(S));
+      if(!imgPushed){await dbxUpload('/images.json',JSON.stringify(IMG));imgPushed=true;}
+      if(nr){S.settings.rev=nr;S.settings.lastSync=Date.now();await dbSet('state',JSON.stringify(S));}
+      dbxErr='';
+      if(manual)say('Synchronisiert');
+    }
+  }catch(e){dbxErr=((e&&e.message)||e)+'';if(manual)say('Sync fehlgeschlagen');}
+  syncing=false;if(route.name==='settings')render();
+}
+
+/* ---------- KI (Venice) ---------- */            /* KI */
+const VENICE_KEY='';                                /* KI: Key von venice.ai/settings/api */
+const KI_URL='https://api.venice.ai/api/v1/chat/completions';
+const KI_MODELL='venice-uncensored-1-2';
+
+async function ki(prompt){
+  const r=await fetch(KI_URL,{method:'POST',
+    headers:{'Authorization':'Bearer '+VENICE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({model:KI_MODELL,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok)throw new Error('KI '+r.status+': '+(await r.text()).slice(0,140));
+  const d=await r.json();
+  return d.choices[0].message.content;
+}
+async function beschreibung(p){
+  if(!VENICE_KEY){say('Kein Venice-Key hinterlegt');return null;}
+  const daten=p.fields.filter(f=>f.value).map(f=>f.label+': '+f.value).join(', ');
+  const prompt='Hier sind Daten zu einer Frau: '+daten+'. '
+    +'Schreibe daraus eine anschauliche Beschreibung in drei bis vier Sätzen. '
+    +'Fließtext, sinnlich, keine Aufzählung, die nackten Zahlen nicht wiederholen.';
+  return await ki(prompt);
+}
+
+/* ---------- Route ---------- */
+let route={name:'login'},stack=[],acc={},q='',tagFilter='',
+    sort='name',editFields=false,draftImg=null;
+const go=(n,id)=>{stack.push({name:route.name,id:route.id});route={name:n,id:id};acc={};q='';tagFilter='';editFields=false;render();};
+const back=()=>{route=stack.pop()||{name:'home'};q='';tagFilter='';editFields=false;render();};
+
+const THEMES=[
+ {id:'hell',n:'Hell',d:'Klar und freundlich',c:['#f7f8fa','#ffffff','#2f6feb']},
+ {id:'dunkel',n:'Dunkel',d:'Ruhig und neutral',c:['#0f1115','#1a1e26','#6ea8fe']},
+ {id:'sinnlich',n:'Sinnlich',d:'Passt zum Thema',c:['#0e060b','#1e0f18','#ff2d78']},
+ {id:'erdig',n:'Erdig',d:'Grün, braun, grau',c:['#f1f0ea','#faf9f4','#6b7f5e']}
+];
+const THEME_COLORS={hell:'#f7f8fa',dunkel:'#0f1115',sinnlich:'#0e060b',erdig:'#f1f0ea'};
+
+function allTags(){const t={};[...S.performers.flatMap(p=>p.cats),...S.categories.map(c=>c.name)]
+ .forEach(x=>t[x]=(t[x]||0)+1);return Object.keys(t).sort((a,b)=>t[b]-t[a]||a.localeCompare(b));}
+function sortList(a,s){s=s||sort;const c=[...a];
+ if(s==='age')c.sort((x,y)=>(+x.age||0)-(+y.age||0));
+ else if(s==='rating')c.sort((x,y)=>(y.rating||0)-(x.rating||0));
+ else if(s==='new')c.sort((x,y)=>String(y.id).localeCompare(String(x.id)));
+ else c.sort((x,y)=>String(x.name).localeCompare(String(y.name),'de'));return c;}
+const stars=v=>[1,2,3,4,5].map(i=>'<span class="'+(i<=v?'on':'')+'">★</span>').join('');
+function fmt(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
+function fieldInput(f){const a='data-fid="'+f.id+'" class="fv"',v=esc(f.value);
+ if(f.type==='number')return '<input type="number" inputmode="numeric" pattern="[0-9]*" '+a+' value="'+v+'">';
+ if(f.type==='date')return '<input type="date" '+a+' value="'+v+'">';
+ if(f.type==='long')return '<textarea rows="3" '+a+'>'+v+'</textarea>';
+ if(f.type==='link')return '<input type="url" inputmode="url" '+a+' value="'+v+'">';
+ return '<input type="text" '+a+' value="'+v+'">';}
+
+const VIEWS={
+login(){return `<div class="login"><div class="logo">A</div><h1 class="pg">Archiv</h1>
+ <p class="mut">Bitte anmelden</p>
+ <div class="fld"><label class="fl">Passwort</label><input id="pw" type="password" enterkeyhint="go"></div>
+ <div id="err"></div>
+ <div class="fld"><button class="btn p" data-act="login">Anmelden</button></div></div>`;},
+
+home(){return `<div class="wrap"><h1 class="pg">Hallo</h1>
+ <p class="mut">Was möchtest du ansehen?</p>
+ <div class="toolbar"><input id="q" placeholder="Alles durchsuchen…" value="${esc(q)}"></div>
+ <div id="results"></div>
+ <div class="homegrid">
+  <button class="hbtn" data-act="go" data-id="performers"><span class="dot">★</span><span><span class="t">Pornos</span><span class="s">Darstellerinnen und Filme</span></span><span class="arw">›</span></button>
+  <button class="hbtn" data-act="go" data-id="categories"><span class="dot">▣</span><span><span class="t">Bilder</span><span class="s">Sammlung nach Kategorien</span></span><span class="arw">›</span></button>
+  <button class="hbtn" data-act="go" data-id="profiles"><span class="dot">☰</span><span><span class="t">Steckbriefe</span><span class="s">Deine fiktiven Frauen</span></span><span class="arw">›</span></button>
+  <button class="hbtn" data-act="go" data-id="favs"><span class="dot">♥️</span><span><span class="t">Favoriten</span><span class="s">Alles mit Herz</span></span><span class="arw">›</span></button>
+ </div></div>`;},
+
+search(){return `<div class="wrap"><h1 class="pg">Suche</h1>
+ <div class="toolbar"><input id="q" placeholder="Alles durchsuchen…" value="${esc(q)}"></div>
+ <div id="results"></div></div>`;},
+
+performers(){
+ const tags=allTags(),list=sortList(S.performers.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())&&(!tagFilter||p.cats.includes(tagFilter))));
+ return `<div class="wrap"><h1 class="pg">Pornos</h1><p class="mut">${S.performers.length} Darstellerinnen</p>
+ <div class="toolbar"><input id="q" placeholder="Suchen…" value="${esc(q)}">
+  <select id="sortsel"><option value="name"${sort==='name'?' selected':''}>Name</option><option value="age"${sort==='age'?' selected':''}>Alter</option>
+  <option value="rating"${sort==='rating'?' selected':''}>Bewertung</option><option value="new"${sort==='new'?' selected':''}>Neueste</option></select></div>
+ <div class="chips">${tags.slice(0,8).map(t=>`<button class="chip ${tagFilter===t?'on':''}" data-act="tagf" data-val="${esc(t)}">${esc(t)}</button>`).join('')}
+  ${tags.length>8?`<button class="chip add" data-act="tagall">alle (${tags.length})</button>`:''}
+  <button class="chip add" data-act="newcat">+ Kategorie</button></div>
+ <div class="grid">${list.map(p=>`<div class="tile" data-act="go" data-id="performer" data-val="${p.id}">
+   <div class="thumb">${img(p.img,p.name)}<button class="heart ${p.fav?'on':''}" data-act="fav" data-id="${p.id}">♥️</button>
+   <button class="pen" data-act="editperf" data-id="${p.id}">✎</button>
+   ${p.films.length?`<span class="badge">${p.films.length} Filme</span>`:''}</div>
+   <div class="lb">${esc(p.name)}<div class="sub">${esc(p.age)} J. · ${esc(p.cats.slice(0,2).join(', '))||'—'}</div>
+   <div class="stars">${stars(p.rating||0)}</div></div></div>`).join('')}
+  <div class="emptytile" data-act="new" data-val="performer">+</div></div></div>`;},
+
+performer(){
+ const p=find(S.performers,route.id)||S.performers[0];if(!p)return'<div class="wrap"><p>Leer</p></div>';
+ const k=x=>!!acc[x];
+ return `<div class="wrap">
+ <div class="hero">${img(p.img,p.name)}<div class="ov"><h1>${esc(p.name)}</h1><div class="sub">${esc(p.age)} Jahre · ${esc(p.height)}</div></div>
+  <button class="pen" style="top:10px;right:10px;width:32px;height:32px" data-act="editperf" data-id="${p.id}">✎</button>
+  <button class="heart ${p.fav?'on':''}" style="top:10px;left:10px;width:32px;height:32px" data-act="fav" data-id="${p.id}">♥️</button></div>
+ <div class="facts">${[['Alter',p.age+' J.'],['Größe',p.height],['Haarfarbe',p.hair],['Gewicht',p.weight],['Brustgröße',p.bust]]
+  .map(f=>`<div class="fact"><div class="k">${f[0]}</div><div class="v">${esc(f[1])}</div></div>`).join('')}</div>
+ <div class="chips"><div class="stars live" data-id="${p.id}" data-kind="performer">${stars(p.rating||0)}</div></div>
+ <h3 class="sec">Kategorien und Tags</h3>
+ <div class="chips">${p.cats.map(c=>`<span class="chip on">${esc(c)}<span class="x" data-act="untag" data-val="${esc(c)}">×</span></span>`).join('')||'<p class="mut">Noch keine Tags</p>'}</div>
+ <div class="toolbar"><input id="tagin" placeholder="Tag eingeben…"><button class="btn s" data-act="addtag">+</button></div>
+ <div class="sugg" id="sugg"></div>
+
+ <div class="acc ${k('films')?'open':''}"><button data-act="acc" data-val="films">Pornofilme <span>${p.films.length}<span class="cnt">▾</span></span></button>
+  <div class="bd">${p.films.length?p.films.map(f=>`<div class="film">
+    <div class="ttl"><a href="${esc(f.u)}" data-act="openlink" data-url="${esc(f.u)}">${esc(f.t)}</a>
+    <div class="meta"><span class="pill">${esc(f.c)}</span><span class="pill d">${esc(f.d)}</span></div></div>
+    <button class="pen" style="position:static" data-act="editfilm" data-id="${f.id}">✎</button></div>`).join(''):'<p class="mut">Noch keine Filme verlinkt.</p>'}
+   <div class="formbox"><input id="a-ft" placeholder="Name des Pornos"><input id="a-fu" placeholder="Link (https://…)">
+    <div class="toolbar"><input id="a-fd" placeholder="Dauer mm:ss"><button class="btn s" data-act="detect" data-src="a">erkennen</button></div>
+    <input id="a-fc" placeholder="Kategorie">
+    <div class="sugg">${allTags().slice(0,6).map(t=>`<button data-act="fillcat" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+    <button class="btn p s" style="margin-top:10px" data-act="addfilm">Film hinzufügen</button></div></div></div>
+
+ <div class="acc ${k('pics')?'open':''}"><button data-act="acc" data-val="pics">Bilder <span>${p.pics.length}<span class="cnt">▾</span></span></button>
+  <div class="bd"><label class="fl">Kategorie für neue Bilder</label>
+   <select id="upcat"><option value="">ohne Kategorie</option>${allTags().map(t=>`<option>${esc(t)}</option>`).join('')}</select>
+   <label class="upload">Bilder hochladen (werden automatisch einsortiert)
+    <input type="file" accept="image/*" multiple hidden data-act="up" data-kind="perf" data-id="${p.id}"></label>
+   <div class="pics">${p.pics.map((s,i)=>`<div class="pic" data-act="light" data-kind="perf" data-id="${p.id}" data-idx="${i}">${img(s.src,'')}
+     ${s.cat?`<span class="tag">${esc(s.cat)}</span>`:''}<button class="x" data-act="delpic" data-kind="perf" data-id="${p.id}" data-idx="${i}">×</button></div>`).join('')}</div></div></div>
+
+ <div class="acc ${k('notes')?'open':''}"><button data-act="acc" data-val="notes">Notizen <span class="cnt">▾</span></button>
+  <div class="bd"><textarea id="notes" rows="4" placeholder="Eigene Notizen…">${esc(p.notes||'')}</textarea></div></div>
+
+ <div class="fld"><button class="btn" data-act="delperf" data-id="${p.id}">Darstellerin löschen</button></div></div>`;},
+
+categories(){return `<div class="wrap"><h1 class="pg">Bilder</h1><p class="mut">Nach Kategorien sortiert</p>
+ <div class="grid">${S.categories.map(c=>`<div class="tile" data-act="go" data-id="category" data-val="${c.id}">
+  <div class="thumb">${img(c.img,c.name)}<button class="pen" data-act="editcat" data-id="${c.id}">✎</button>
+  ${c.pics.length?`<span class="badge">${c.pics.length}</span>`:''}</div>
+  <div class="lb">${esc(c.name)}<div class="sub">${c.pics.length} Bilder</div></div></div>`).join('')}
+  <div class="emptytile" data-act="new" data-val="category">+</div></div></div>`;},
+
+category(){
+ const c=find(S.categories,route.id)||S.categories[0];if(!c)return'<div class="wrap"><p>Leer</p></div>';
+ const auto=S.performers.flatMap(p=>p.pics.filter(x=>x.cat===c.name).map(x=>({src:x.src,who:p.name,pid:p.id})));
+ return `<div class="wrap">
+ <div class="hero" style="height:150px">${img(c.img,c.name)}<div class="ov"><h1>${esc(c.name)}</h1><div class="sub">${c.pics.length+auto.length} Bilder</div></div>
+  <button class="pen" style="top:10px;right:10px;width:32px;height:32px" data-act="editcat" data-id="${c.id}">✎</button></div>
+ <label class="upload">Bilder für „${esc(c.name)}" hochladen<input type="file" accept="image/*" multiple hidden data-act="up" data-kind="cat" data-id="${c.id}"></label>
+ <div class="pics">${c.pics.map((s,i)=>`<div class="pic" data-act="light" data-kind="cat" data-id="${c.id}" data-idx="${i}">${img(s.src,'')}<button class="x" data-act="delpic" data-kind="cat" data-id="${c.id}" data-idx="${i}">×</button></div>`).join('')}</div>
+ ${auto.length?`<h3 class="sec">Aus Profilen einsortiert</h3><div class="pics">${auto.map(a=>`<div class="pic" data-act="go" data-id="performer" data-val="${a.pid}">${img(a.src,'')}<span class="tag">${esc(a.who)}</span></div>`).join('')}</div>`:''}</div>`;},
+
+profiles(){
+ const s=sort==='age'?'name':sort;
+ const list=sortList(S.profiles,s).filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
+ return `<div class="wrap"><h1 class="pg">Steckbriefe</h1><p class="mut">${S.profiles.length} eigene Profile</p>
+ <div class="toolbar"><input id="q" placeholder="Suchen…" value="${esc(q)}">
+  <select id="sortsel"><option value="name"${s==='name'?' selected':''}>Name</option>
+  <option value="rating"${s==='rating'?' selected':''}>Bewertung</option><option value="new"${s==='new'?' selected':''}>Neueste</option></select></div>
+ <div class="grid">${list.map(p=>`<div class="tile" data-act="go" data-id="profile" data-val="${p.id}">
+  <div class="thumb">${img(p.img,p.name)}<button class="heart ${p.fav?'on':''}" data-act="favp" data-id="${p.id}">♥️</button>
+  <button class="pen" data-act="editprof" data-id="${p.id}">✎</button></div>
+  <div class="lb">${esc(p.name)}<div class="sub">${p.stories.length} Storys</div><div class="stars">${stars(p.rating||0)}</div></div></div>`).join('')}
+  <div class="emptytile" data-act="new" data-val="profile">+</div></div></div>`;},
+
+profile(){
+ const p=find(S.profiles,route.id)||S.profiles[0];if(!p)return'<div class="wrap"><p>Leer</p></div>';
+ const k=x=>!!acc[x];
+ const val=f=>f.type==='link'&&f.value?`<a href="${esc(f.value)}" data-act="openlink" data-url="${esc(f.value)}">${esc(f.value)}</a>`:(esc(f.value)||'—');
+ return `<div class="wrap">
+ <div class="hero">${img(p.img,p.name)}<div class="ov"><h1>${esc(p.name)}</h1><div class="sub">Steckbrief</div></div>
+  <button class="pen" style="top:10px;right:10px;width:32px;height:32px" data-act="editprof" data-id="${p.id}">✎</button>
+  <button class="heart ${p.fav?'on':''}" style="top:10px;left:10px;width:32px;height:32px" data-act="favp" data-id="${p.id}">♥️</button></div>
+ <div class="chips"><div class="stars live" data-id="${p.id}" data-kind="profile">${stars(p.rating||0)}</div></div>
+ <h3 class="sec" style="display:flex;justify-content:space-between;align-items:center">Steckbrief
+  <span style="display:flex;gap:6px">
+   <button class="btn s" data-act="beschreiben" data-id="${p.id}">KI-Text</button>
+   <button class="btn s" data-act="togfields">${editFields?'fertig':'bearbeiten'}</button>
+  </span></h3>
+ ${editFields?p.fields.map(f=>`<div class="frow">
+    <input class="lb2" value="${esc(f.label)}" data-act="flabel" data-fid="${f.id}">
+    <select class="ty" data-act="ftype" data-fid="${f.id}">${[['text','Text'],['number','Zahl'],['date','Datum'],['long','Langtext'],['link','Link']]
+     .map(t=>`<option value="${t[0]}"${f.type===t[0]?' selected':''}>${t[1]}</option>`).join('')}</select>
+    <button class="del" data-act="delfield" data-fid="${f.id}">×</button></div>
+   <div>${fieldInput(f)}</div>`).join(''):`<div class="facts">${p.fields.map(f=>`<div class="fact"><div class="k">${esc(f.label)}</div><div class="v">${val(f)}</div></div>`).join('')}</div>`}
+ ${editFields?`<button class="btn s" style="margin-top:12px" data-act="addfield">+ Feld hinzufügen</button>`:''}
+
+ <div class="acc ${k('stories')?'open':''}"><button data-act="acc" data-val="stories">Storys <span>${p.stories.length}<span class="cnt">▾</span></span></button>
+  <div class="bd">${p.stories.length?p.stories.map(s=>`<div class="storyrow" data-act="readstory" data-id="${p.id}:${s.id}">
+    <div class="st"><b>${esc(s.title)}</b><i>${esc(s.date||'')}</i></div><span style="color:var(--muted)">›</span></div>`).join(''):'<p class="mut">Noch keine Storys.</p>'}
+   <button class="btn p s" style="margin-top:8px" data-act="newstory" data-id="${p.id}">Story hinzufügen</button></div></div>
+
+ <div class="fld"><button class="btn" data-act="delprof" data-id="${p.id}">Steckbrief löschen</button></div></div>`;},
+
+story(){
+ const pr=(route.id||'').split(':'),p=find(S.profiles,pr[0]),s=p&&find(p.stories,pr[1]);
+ if(!s)return'<div class="wrap"><p>Story nicht gefunden</p></div>';
+ return `<div class="wrap"><h1 class="pg" style="margin-top:6px">${esc(s.title)}</h1>
+ <p class="mut">${esc(p.name)} · ${esc(s.date||'')}</p><div class="storyread">${esc(s.text)}</div>
+ <div class="toolbar"><button class="btn s" data-act="editstory" data-id="${p.id}:${s.id}">Bearbeiten</button>
+ <button class="btn s" data-act="delstory" data-id="${p.id}:${s.id}">Löschen</button></div></div>`;},
+
+favs(){
+ const pf=S.performers.filter(x=>x.fav),pr=S.profiles.filter(x=>x.fav);
+ return `<div class="wrap"><h1 class="pg">Favoriten</h1><p class="mut">${pf.length+pr.length} Einträge</p>
+ ${!pf.length&&!pr.length?'<p class="hint">Tippe auf das Herz in einer Kachel.</p>':''}
+ ${pf.length?`<h3 class="sec">Darstellerinnen</h3><div class="grid">${pf.map(p=>`<div class="tile" data-act="go" data-id="performer" data-val="${p.id}">
+  <div class="thumb">${img(p.img,p.name)}<button class="heart on" data-act="fav" data-id="${p.id}">♥️</button></div>
+  <div class="lb">${esc(p.name)}</div></div>`).join('')}</div>`:''}
+ ${pr.length?`<h3 class="sec">Steckbriefe</h3><div class="grid">${pr.map(p=>`<div class="tile" data-act="go" data-id="profile" data-val="${p.id}">
+  <div class="thumb">${img(p.img,p.name)}<button class="heart on" data-act="favp" data-id="${p.id}">♥️</button></div>
+  <div class="lb">${esc(p.name)}</div></div>`).join('')}</div>`:''}</div>`;},
+
+settings(){const last=S.settings.lastSync?new Date(S.settings.lastSync).toLocaleString('de-DE'):'noch nie';
+ const retry=/[?&]code=/.test(location.search);
+ return `<div class="wrap"><h1 class="pg">Einstellungen</h1><p class="mut">Design, Daten und Konto</p>
+ <h3 class="sec">Design</h3>
+ ${THEMES.map(t=>`<div class="themecard ${S.settings.theme===t.id?'on':''}" data-act="settheme" data-val="${t.id}">
+  <div class="sw">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</div>
+  <div><div class="tn">${t.n}</div><div class="td">${t.d}</div></div></div>`).join('')}
+ <h3 class="sec">KI</h3>
+ <label class="fl">Venice-Key (venice.ai/settings/api)</label>
+ <input id="kikey" value="${esc(VENICE_KEY)}" placeholder="venice-…">
+ <button class="btn s" style="margin-top:10px" data-act="saveki">Key merken</button>
+ <p class="syncst">${VENICE_KEY?'Key hinterlegt.':'Noch kein Key. Die KI-Knöpfe melden sich sonst mit einem Hinweis.'}</p>
+ <h3 class="sec">Verhalten</h3>
+ <div class="row"><input type="checkbox" id="ff" ${S.settings.ff?'checked':''} data-act="ff">
+  <label for="ff">Film-Links in der Firefox-App öffnen</label></div>
+ <h3 class="sec">Sicherung in Dropbox</h3>
+ ${dbxErr?`<p class="syncerr">${esc(dbxErr)}</p>`:''}
+ <p class="syncst">Weg: ${esc(weg)} · Vermittler: ${esc(swStatus||'unbekannt')}</p>
+ ${retry?`<button class="btn" data-act="retry">Nochmal versuchen</button>`:''}
+ ${dbx.refresh?`<p class="syncst">Verbunden. Letzte Synchronisierung: ${esc(last)}</p>
+  <button class="btn" data-act="sync">Jetzt synchronisieren</button>
+  <button class="btn" style="margin-top:8px" data-act="dbxoff">Verbindung trennen</button>`
+ :`<p class="syncst">Nicht verbunden. Die Daten liegen dann nur auf diesem Gerät.</p>
+  <button class="btn p" data-act="dbxon">Mit Dropbox verbinden</button>`}
+ <button class="btn" style="margin-top:8px" data-act="dbxtest">Verbindung testen</button>
+ <button class="btn" style="margin-top:8px" data-act="killsw">Vermittler entfernen</button>
+ <h3 class="sec">Daten</h3>
+ <button class="btn" data-act="export">Datei sichern (mit Bildern)</button>
+ <button class="btn" style="margin-top:8px" data-act="exportlite">Datei sichern (ohne Bilder, klein)</button>
+ <label class="upload">Datei einlesen<input type="file" accept=".json,application/json" hidden data-act="impfile"></label>
+ <label class="fl">oder JSON einfügen (kleine Dateien)</label><textarea id="imp" rows="3" placeholder='{"performers":[ … ]}'></textarea>
+ <button class="btn" style="margin-top:10px" data-act="doimport">Einfügen</button>
+ <button class="btn" style="margin-top:8px" data-act="reset">Auf Demo-Stand zurücksetzen</button>
+ <h3 class="sec">Konto</h3>
+ <button class="btn" data-act="logout">Abmelden</button>
+ <p class="hint">Alle Daten liegen lokal auf diesem Gerät und werden, wenn verbunden, in deinen Dropbox-App-Ordner gesichert.</p></div>`;}
+};
+
+const TITLES={performers:'Pornos',performer:'Profil',categories:'Bilder',category:'Kategorie',
+ profiles:'Steckbriefe',profile:'Steckbrief',story:'Story',favs:'Favoriten',search:'Suche',settings:'Einstellungen'};
+
+function render(){
+ app.dataset.theme=S.settings.theme;
+ tc.setAttribute('content',THEME_COLORS[S.settings.theme]||'#0e060b');
+ const showNav=route.name!=='login';
+ nav.style.display=showNav?'':'none';
+ if(showNav){
+  nav.innerHTML=`<button data-act="back" ${stack.length?'':'disabled'}><b>‹</b>Zurück</button>
+   <button data-act="home" class="${route.name==='home'?'on':''}"><b>⌂</b>Start</button>
+   <button data-act="search" class="${route.name==='search'?'on':''}"><b>⌕</b>Suche</button>
+   <button data-act="settings" class="${route.name==='settings'?'on':''}"><b>⚙</b>Einstellungen</button>`;
+ }
+ if(route.name==='login')top.innerHTML='<h2>Archiv</h2>';
+ else top.innerHTML=`<h2>${esc(TITLES[route.name]||'')}</h2>`;
+ view.innerHTML=(VIEWS[route.name]||VIEWS.home)();
+ main.scrollTop=0;
+ light.classList.remove('show');
+ if(route.name==='home'||route.name==='search')renderResults();
+}
+
+function renderResults(){
+ const box=$('results');if(!box)return;
+ if(!q){box.innerHTML='';return;}
+ const t=q.toLowerCase();
+ const pf=S.performers.filter(p=>p.name.toLowerCase().includes(t)||p.cats.join(' ').toLowerCase().includes(t));
+ const fl=S.performers.flatMap(p=>p.films.filter(f=>f.t.toLowerCase().includes(t)).map(f=>({f:f,p:p})));
+ const pr=S.profiles.filter(p=>p.name.toLowerCase().includes(t)||p.fields.some(x=>String(x.value).toLowerCase().includes(t)));
+ const st=S.profiles.flatMap(p=>p.stories.filter(s=>(s.title+' '+s.text).toLowerCase().includes(t)).map(s=>({s:s,p:p})));
+ const ca=S.categories.filter(c=>c.name.toLowerCase().includes(t));
+ if(!(pf.length||fl.length||pr.length||st.length||ca.length)){box.innerHTML='<p class="hint">Nichts gefunden.</p>';return;}
+ box.innerHTML=
+  (pf.length?`<div class="resgrp"><h3>Darstellerinnen</h3>${pf.map(p=>`<div class="res" data-act="go" data-id="performer" data-val="${p.id}">${img(p.img,p.name)}<div><b>${esc(p.name)}</b><i>${p.films.length} Filme</i></div></div>`).join('')}</div>`:'')+
+  (fl.length?`<div class="resgrp"><h3>Filme</h3>${fl.map(x=>`<div class="res" data-act="openlink" data-url="${esc(x.f.u)}"><div class="ph"></div><div><b>${esc(x.f.t)}</b><i>${esc(x.p.name)} · ${esc(x.f.d)}</i></div></div>`).join('')}</div>`:'')+
+  (pr.length?`<div class="resgrp"><h3>Steckbriefe</h3>${pr.map(p=>`<div class="res" data-act="go" data-id="profile" data-val="${p.id}">${img(p.img,p.name)}<div><b>${esc(p.name)}</b><i>${p.stories.length} Storys</i></div></div>`).join('')}</div>`:'')+
+  (st.length?`<div class="resgrp"><h3>Storys</h3>${st.map(x=>`<div class="res" data-act="readstory" data-id="${x.p.id}:${x.s.id}"><div class="ph"></div><div><b>${esc(x.s.title)}</b><i>${esc(x.p.name)}</i></div></div>`).join('')}</div>`:'')+
+  (ca.length?`<div class="resgrp"><h3>Kategorien</h3>${ca.map(c=>`<div class="res" data-act="go" data-id="category" data-val="${c.id}">${img(c.img,c.name)}<div><b>${esc(c.name)}</b></div></div>`).join('')}</div>`:'');
+}
+
+function sheet(title,body,foot){
+ modal.innerHTML=`<div class="box"><div class="boxhdr"><h1>${esc(title)}</h1>
+  <button class="x2" data-act="close">×</button></div>${body}
+  <div class="fld">${foot||''}<button class="btn" data-act="close">Fertig</button></div></div>`;
+ modal.classList.add('show');modal.scrollTop=0;
+}
+const closeModal=()=>modal.classList.remove('show');
+
+function formPerf(id){
+ const p=id?find(S.performers,id):null;draftImg=null;
+ sheet(p?'Darstellerin bearbeiten':'Neue Darstellerin',
+  `<label class="fl">Name</label><input id="e-name" value="${p?esc(p.name):''}">
+   <label class="fl">Alter (Zahl)</label><input id="e-age" type="number" inputmode="numeric" pattern="[0-9]*" value="${p?esc(p.age):''}">
+   <label class="fl">Größe</label><input id="e-height" value="${p?esc(p.height):''}">
+   <label class="fl">Haarfarbe</label><input id="e-hair" value="${p?esc(p.hair):''}">
+   <label class="fl">Gewicht</label><input id="e-weight" value="${p?esc(p.weight):''}">
+   <label class="fl">Brustgröße</label><input id="e-bust" value="${p?esc(p.bust):''}">
+   <label class="fl">Kategorien / Tags (Komma getrennt)</label><input id="e-cats" value="${p?esc(p.cats.join(', ')):''}">
+   <label class="fl">Bild</label><div class="thumb" id="previmg" style="width:88px;border-radius:12px">${img(p?p.img:'','')}</div>
+   <label class="upload">Bild vom iPhone wählen<input type="file" accept="image/*" hidden data-act="upimg" data-kind="perf" data-id="${id||'new'}"></label>`,
+  `<button class="btn p" data-act="saveperf" data-id="${id||''}">Speichern</button>
+   ${p?`<button class="btn" style="margin-top:8px" data-act="delperf" data-id="${p.id}">Löschen</button>`:''}`);}
+
+function formCat(id){
+ const c=id?find(S.categories,id):null;draftImg=null;
+ sheet(c?'Kategorie bearbeiten':'Neue Kategorie',
+  `<label class="fl">Name</label><input id="e-name" value="${c?esc(c.name):''}">
+   <label class="fl">Bild</label><div class="thumb" id="previmg" style="width:88px;border-radius:12px">${img(c?c.img:'','')}</div>
+   <label class="upload">Bild wählen<input type="file" accept="image/*" hidden data-act="upimg" data-kind="cat" data-id="${id||'new'}"></label>`,
+  `<button class="btn p" data-act="savecat" data-id="${id||''}">Speichern</button>
+   ${c?`<button class="btn" style="margin-top:8px" data-act="delcat" data-id="${c.id}">Löschen</button>`:''}`);}
+
+function formProf(id){
+ const p=id?find(S.profiles,id):null;draftImg=null;
+ sheet(p?'Steckbrief bearbeiten':'Neuer Steckbrief',
+  `<label class="fl">Name</label><input id="e-name" value="${p?esc(p.name):''}">
+   <label class="fl">Bild</label><div class="thumb" id="previmg" style="width:88px;border-radius:12px">${img(p?p.img:'','')}</div>
+   <label class="upload">Bild wählen<input type="file" accept="image/*" hidden data-act="upimg" data-kind="prof" data-id="${id||'new'}"></label>
+   <p class="hint">Die Felder bearbeitest du direkt auf der Profilseite über „bearbeiten".</p>`,
+  `<button class="btn p" data-act="saveprof" data-id="${id||''}">Speichern</button>
+   ${p?`<button class="btn" style="margin-top:8px" data-act="delprof" data-id="${p.id}">Löschen</button>`:''}`);}
+
+function formStory(pid,sid){
+ const p=find(S.profiles,pid),s=sid?find(p.stories,sid):null;
+ sheet(s?'Story bearbeiten':'Neue Story',
+  `<label class="fl">Titel</label><input id="e-title" value="${s?esc(s.title):''}">
+   <label class="fl">Text</label><textarea id="e-text" rows="9">${s?esc(s.text):''}</textarea>`,
+  `<button class="btn p" data-act="savestory" data-id="${pid}" data-sid="${sid||''}">Speichern</button>`);}
+
+function formFilm(pid,fid){
+ const p=find(S.performers,pid),f=fid?find(p.films,fid):null;
+ sheet(f?'Film bearbeiten':'Film verlinken',
+  `<label class="fl">Name</label><input id="m-ft" value="${f?esc(f.t):''}">
+   <label class="fl">Link</label><input id="m-fu" value="${f?esc(f.u):''}">
+   <label class="fl">Dauer (mm:ss)</label><input id="m-fd" value="${f?esc(f.d):''}">
+   <button class="btn s" style="margin-top:8px" data-act="detect" data-src="m">Dauer aus Link erkennen</button>
+   <label class="fl">Kategorie</label><input id="m-fc" value="${f?esc(f.c):''}">`,
+  `<button class="btn p" data-act="savefilm" data-id="${pid}" data-fid="${fid||''}">Speichern</button>
+   ${f?`<button class="btn" style="margin-top:8px" data-act="delfilm" data-id="${f.id}">Löschen</button>`:''}`);}
+
+function download(blob,name){
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+
+function doLogin(){const p=($('pw')||{}).value;
+ if(p==='Lennox84'){S.settings.user='Lafai';save();route={name:'home'};stack=[];render();syncNow(false);}
+ else $('err').innerHTML='<p class="err">Falsches Passwort.</p>';}
+
+/* ---------- Klicks ---------- */
+app.addEventListener('click',e=>{
+ const el=e.target.closest('[data-act]');if(!el)return;
+ const a=el.dataset.act,id=el.dataset.id,v=el.dataset.val;
+ const P_=()=>find(S.performers,route.id);
+ if(a==='login'){doLogin();}
+ else if(a==='logout'){S.settings.user=null;save();route={name:'login'};stack=[];render();}
+ else if(a==='back'){back();}
+ else if(a==='home'){stack=[];route={name:'home'};q='';tagFilter='';editFields=false;render();}
+ else if(a==='search'){go('search');}
+ else if(a==='settings'){if(route.name!=='settings')go('settings');}
+ else if(a==='go'){go(id,v);}
+ else if(a==='acc'){acc[v]=!acc[v];render();}
+ else if(a==='close'){closeModal();}
+ else if(a==='saveki'){const k=(($('kikey')||{}).value||'').trim();
+  try{localStorage.setItem('venice_key',k);}catch(err){}
+  say(k?'Key gemerkt – Seite neu laden':'Key leer');}
+ else if(a==='beschreiben'){const p=find(S.profiles,id);if(!p)return;
+  say('Denke nach…');
+  beschreibung(p).then(t=>{
+    if(!t)return;
+    const ex=p.fields.filter(f=>f.label==='Beschreibung')[0];
+    if(ex)ex.value=t;else p.fields.push(F('Beschreibung',t,'long'));
+    save();render();say('Beschreibung erstellt');
+  }).catch(err=>say('Fehler: '+((err&&err.message)||err)));}
+ else if(a==='openlink'){e.preventDefault();const u=el.dataset.url;
+  if(S.settings.ff)window.location.href='firefox://open-url?url='+encodeURIComponent(u);else window.open(u,'_blank');}
+ else if(a==='settheme'){S.settings.theme=v;save();render();say('Design: '+v);}
+ else if(a==='ff'){S.settings.ff=!S.settings.ff;save();}
+ else if(a==='dbxon'){dbxConnect();}
+ else if(a==='dbxtest'){dbxTest();}
+ else if(a==='killsw'){killSW();}
+ else if(a==='retry'){location.reload();}
+ else if(a==='dbxoff'){dbx={refresh:null,access:null,exp:0};dbxErr='';weg='direkt';dbSet('dbx','');render();say('Getrennt');}
+ else if(a==='sync'){syncNow(true);}
+ else if(a==='fav'){const p=find(S.performers,id);if(p){p.fav=!p.fav;save();render();}}
+ else if(a==='favp'){const p=find(S.profiles,id);if(p){p.fav=!p.fav;save();render();}}
+ else if(a==='tagf'){tagFilter=tagFilter===v?'':v;render();}
+ else if(a==='tagall'){sheet('Alle Kategorien',allTags().map(t=>`<span class="chip" style="margin:4px" data-act="tagf2" data-val="${esc(t)}">${esc(t)}</span>`).join(''));}
+ else if(a==='tagf2'){tagFilter=v;closeModal();render();}
+ else if(a==='newcat'){formCat(null);}
+ else if(a==='editcat'){formCat(id);}
+ else if(a==='editperf'){formPerf(id);}
+ else if(a==='editprof'){formProf(id);}
+ else if(a==='editfilm'){formFilm(route.id,id);}
+ else if(a==='new'){if(v==='performer')formPerf(null);else if(v==='category')formCat(null);else formProf(null);}
+ else if(a==='saveperf'){const g=x=>(($('e-'+x)||{}).value||'').trim();
+  if(id){const p=find(S.performers,id);if(!p)return;
+   p.name=g('name')||p.name;p.age=g('age');p.height=g('height');
+   p.hair=g('hair');p.weight=g('weight');p.bust=g('bust');
+   p.cats=g('cats').split(',').map(s=>s.trim()).filter(Boolean);
+   if(draftImg){const n=uid('i');IMG[n]=draftImg;p.img=n;imgDirty=true;}}
+  else{const o={id:uid('p'),name:g('name')||'Ohne Namen',age:g('age'),height:g('height'),
+   hair:g('hair'),weight:g('weight'),bust:g('bust'),img:'',
+   cats:g('cats').split(',').map(s=>s.trim()).filter(Boolean),rating:0,fav:false,notes:'',films:[],pics:[]};
+   if(draftImg){const n=uid('i');IMG[n]=draftImg;o.img=n;imgDirty=true;}else o.img=P(uid('x'));
+   S.performers.push(o);}
+  save();closeModal();render();say('Gespeichert');}
+ else if(a==='savecat'){const n=(($('e-name')||{}).value||'').trim();
+  if(id){const c=find(S.categories,id);if(c){c.name=n||c.name;if(draftImg){const k=uid('i');IMG[k]=draftImg;c.img=k;imgDirty=true;}}}
+  else{const o={id:uid('c'),name:n||'Neue Kategorie',img:'',pics:[]};
+   if(draftImg){const k=uid('i');IMG[k]=draftImg;o.img=k;imgDirty=true;}else o.img=P(uid('c'));
+   S.categories.push(o);}
+  save();closeModal();render();say('Gespeichert');}
+ else if(a==='saveprof'){const n=(($('e-name')||{}).value||'').trim();
+  if(id){const p=find(S.profiles,id);if(p){p.name=n||p.name;if(draftImg){const k=uid('i');IMG[k]=draftImg;p.img=k;imgDirty=true;}}}
+  else{const o={id:uid('s'),name:n||'Ohne Namen',img:'',rating:0,fav:false,
+   fields:[F('Alter','','number'),F('Größe',''),F('Haarfarbe',''),F('Figur',''),F('Wohnort',''),F('Beruf','')],stories:[]};
+   if(draftImg){const k=uid('i');IMG[k]=draftImg;o.img=k;imgDirty=true;}else o.img=P(uid('s'));
+   S.profiles.push(o);}
+  save();closeModal();render();say('Gespeichert');}
+ else if(a==='savefilm'){const p=find(S.performers,id);if(!p)return;
+  const t=(($('m-ft')||{}).value||'').trim(),u=(($('m-fu')||{}).value||'').trim(),
+   d=(($('m-fd')||{}).value||'').trim(),c=(($('m-fc')||{}).value||'').trim();
+  if(!t||!u){say('Name und Link nötig');return;}
+  const fid=el.dataset.fid;
+  if(fid){const f=find(p.films,fid);if(f){f.t=t;f.u=u;f.d=d||'—';f.c=c||'Ohne Kategorie';}}
+  else p.films.push({id:uid('f'),t:t,u:u,d:d||'—',c:c||'Ohne Kategorie'});
+  save();closeModal();render();say('Gespeichert');}
+ else if(a==='delfilm'){const p=find(S.performers,route.id);if(p){p.films=p.films.filter(f=>f.id!==id);save();closeModal();render();}}
+ else if(a==='addfilm'){const t=(($('a-ft')||{}).value||'').trim(),u=(($('a-fu')||{}).value||'').trim(),
+  d=(($('a-fd')||{}).value||'').trim(),c=(($('a-fc')||{}).value||'').trim();
+  if(!t||!u){say('Name und Link nötig');return;}
+  P_().films.push({id:uid('f'),t:t,u:u,d:d||'—',c:c||'Ohne Kategorie'});save();render();say('Film hinzugefügt');}
+ else if(a==='detect'){const s=el.dataset.src||'a';
+  const u=(($(s+'-fu')||{}).value||'');
+  detect(u).then(d=>{const box=$(s+'-fd');if(d&&box){box.value=d;say('Dauer erkannt: '+d);}else say('Bitte selbst eingeben');});}
+ else if(a==='fillcat'){const x=$('a-fc');if(x)x.value=v;}
+ else if(a==='addtag'){const i=$('tagin'),t=i.value.trim();if(!t)return;
+  const p=P_();if(!p.cats.includes(t))p.cats.push(t);
+  if(!S.categories.some(c=>c.name===t))S.categories.push({id:uid('c'),name:t,img:P(t),pics:[]});
+  save();render();say('Tag hinzugefügt');}
+ else if(a==='untag'){const p=P_();p.cats=p.cats.filter(c=>c!==v);save();render();}
+ else if(a==='addfield'){const p=find(S.profiles,route.id);p.fields.push(F('Neues Feld','','text'));save();render();}
+ else if(a==='delfield'){const p=find(S.profiles,route.id);p.fields=p.fields.filter(f=>f.id!==el.dataset.fid);save();render();}
+ else if(a==='togfields'){editFields=!editFields;render();}
+ else if(a==='delperf'){S.performers=S.performers.filter(p=>p.id!==id);gc();saveImgs();save();closeModal();
+  if(route.name==='performer')back();else render();}
+ else if(a==='delcat'){S.categories=S.categories.filter(c=>c.id!==id);gc();saveImgs();save();closeModal();render();}
+ else if(a==='delprof'){S.profiles=S.profiles.filter(p=>p.id!==id);gc();saveImgs();save();closeModal();
+  if(route.name==='profile')back();else render();}
+ else if(a==='delpic'){const k=el.dataset.kind,i=+el.dataset.idx;
+  const o=k==='perf'?find(S.performers,id):find(S.categories,id);
+  if(o){o.pics.splice(i,1);gc();saveImgs();save();render();}}
+ else if(a==='light'){light.dataset.kind=el.dataset.kind;light.dataset.id=id;light.dataset.idx=+el.dataset.idx;showLight();}
+ else if(a==='newstory'){formStory(id,null);}
+ else if(a==='readstory'){go('story',id);}
+ else if(a==='editstory'){const s=id.split(':');formStory(s[0],s[1]);}
+ else if(a==='delstory'){const s=id.split(':'),p=find(S.profiles,s[0]);
+  if(p){p.stories=p.stories.filter(x=>x.id!==s[1]);save();back();say('Story gelöscht');}}
+ else if(a==='savestory'){const t=(($('e-title')||{}).value||'').trim(),tx=($('e-text')||{}).value||'';
+  const p=find(S.profiles,id),sid=el.dataset.sid;if(!p)return;
+  if(sid){const s=find(p.stories,sid);if(s){s.title=t||s.title;s.text=tx;}}
+  else p.stories.push({id:uid('st'),title:t||'Ohne Titel',
+   date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),text:tx});
+  save();closeModal();render();say('Story gespeichert');}
+ else if(a==='export'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:IMG})],{type:'application/json'}),'archiv.json');say('Datei erstellt');}
+ else if(a==='exportlite'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:{}})],{type:'application/json'}),'archiv-klein.json');say('Datei erstellt');}
+ else if(a==='doimport'){try{applyImport(JSON.parse($('imp').value));}catch(err){say('JSON fehlerhaft');}}
+ else if(a==='reset'){S=DEFAULTS();S.settings.user='Lafai';save();route={name:'home'};stack=[];render();say('Zurückgesetzt');}
+});
+
+app.addEventListener('click',e=>{
+ const st=e.target.closest('.stars');if(!st)return;
+ if(!st.dataset.id)return;
+ const idx=[...st.children].indexOf(e.target);if(idx<0)return;
+ const it=st.dataset.kind==='profile'?find(S.profiles,st.dataset.id):find(S.performers,st.dataset.id);
+ if(!it)return;
+ it.rating=idx+1;save();render();
+});
+
+app.addEventListener('input',e=>{
+ const t=e.target;
+ if(t.id==='q'){q=t.value;
+  if(route.name==='home'||route.name==='search'){renderResults();return;}
+  const pos=t.selectionStart;view.innerHTML=VIEWS[route.name]();
+  const n=$('q');if(n){n.focus();n.setSelectionRange(pos,pos);}return;}
+ if(t.dataset.act==='flabel'){const p=find(S.profiles,route.id);if(!p)return;
+  const f=find(p.fields,t.dataset.fid);if(f){f.label=t.value;save();}return;}
+ if(t.classList.contains('fv')){const p=find(S.profiles,route.id);if(!p)return;
+  const f=find(p.fields,t.dataset.fid);if(f){f.value=t.value;save();}return;}
+ if(t.id==='notes'){const p=find(S.performers,route.id);if(p){p.notes=t.value;save();}return;}
+ if(t.id==='tagin'){const v=t.value.toLowerCase(),s=$('sugg');if(!s)return;
+  s.innerHTML=v?allTags().filter(x=>x.toLowerCase().includes(v)).slice(0,6)
+   .map(x=>`<button data-act="filltag" data-val="${esc(x)}">${esc(x)}</button>`).join(''):'';}
+});
+
+app.addEventListener('change',e=>{
+ const el=e.target;
+ if(el.dataset&&el.dataset.act==='ftype'){const p=find(S.profiles,route.id);if(!p)return;
+  const f=find(p.fields,el.dataset.fid);if(f){f.type=el.value;save();render();}return;}
+ if(el.id==='sortsel'){sort=el.value;S.settings.sort=sort;save();render();return;}
+ if(!el.matches('input[type=file]'))return;
+ if(el.dataset.act==='impfile'){const r=new FileReader();
+  r.onload=()=>{try{applyImport(JSON.parse(r.result));}catch(err){say('Datei fehlerhaft');}};
+  r.onerror=()=>say('Datei fehlerhaft');r.readAsText(el.files[0]);return;}
+ const files=[...el.files];if(!files.length)return;
+ if(el.dataset.act==='upimg'){const kind=el.dataset.kind,id=el.dataset.id;
+  shrink(files[0],d=>{if(!d)return say('Bild nicht lesbar');
+   if(id==='new'){draftImg=d;const pv=$('previmg');if(pv)pv.innerHTML=img(d,'Vorschau');say('Bild gewählt');}
+   else{const it=kind==='perf'?find(S.performers,id):kind==='cat'?find(S.categories,id):find(S.profiles,id);
+    if(!it)return;const n=uid('i');IMG[n]=d;it.img=n;saveImgs();save();render();say('Bild geändert');}});
+  return;}
+ if(el.dataset.act==='up'){const kind=el.dataset.kind,id=el.dataset.id;
+  const cat=kind==='perf'?(($('upcat')||{}).value||''):((find(S.categories,id)||{}).name||'');
+  let done=0,out=[];
+  files.forEach(f=>{shrink(f,d=>{if(d){const n=uid('i');IMG[n]=d;out.push({id:uid('i2'),src:n,cat:cat});}
+   if(++done===files.length){const tgt=kind==='perf'?find(S.performers,id):find(S.categories,id);
+    if(tgt&&out.length){tgt.pics=tgt.pics.concat(out);saveImgs();save();render();say(out.length+' Bild(er) hinzugefügt'+(cat?' · '+cat:''));}
+    else say('Keine Bilder übernommen');}});});}
+});
+
+app.addEventListener('click',e=>{const el=e.target.closest('[data-act="filltag"]');
+ if(el){const i=$('tagin');if(i)i.value=el.dataset.val;}});
+
+function applyImport(d){
+ if(!d)return say('Unbekanntes Format');
+ let st,im=null;
+ if(d.state){st=d.state;im=d.images||null;}
+ else if(d.performers){st=d;}
+ else return say('Unbekanntes Format');
+ S=normalize(st);
+ if(im&&typeof im==='object'){IMG=im;imgDirty=true;}
+ saveImgs();save();closeModal();route={name:'home'};stack=[];render();say('Import erfolgreich');
+}
+
+function shrink(file,cb,max){max=max||1200;
+ const r=new FileReader();
+ r.onload=()=>{const im=new Image();
+  im.onload=()=>{let w=im.width||1,h=im.height||1;
+   const sc=Math.min(1,max/Math.max(w,h));
+   w=Math.max(1,Math.round(w*sc));h=Math.max(1,Math.round(h*sc));
+   const c=document.createElement('canvas');c.width=w;c.height=h;
+   c.getContext('2d').drawImage(im,0,0,w,h);
+   try{cb(c.toDataURL('image/jpeg',0.78));}catch(e){cb(null);}};
+  im.onerror=()=>cb(null);
+  im.src=r.result;};
+ r.onerror=()=>cb(null);
+ r.readAsDataURL(file);
+}
+
+function parseDur(s){if(!s)return null;let m;
+ if(m=s.match(/[?&]t=(\d+)/))return fmt(+m[1]);
+ if((m=s.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/i))&&(m[1]||m[2]||m[3]))
+  return fmt((+m[1]||0)*3600+(+m[2]||0)*60+(+m[3]||0));
+ if(m=s.match(/(\d{1,3})\s*min(?:uten)?\s*(\d{1,2})?(?:[^\d]|$)/i))return m[1]+':'+String(m[2]||0).padStart(2,'0');
+ if(m=s.match(/(\d{1,2})[mM](\d{1,2})[sS]/))return m[1]+':'+String(m[2]).padStart(2,'0');
+ if(m=s.match(/(?:^|[^\d])(\d{1,2})[-_:](\d{2})(?:[^\d]|$)/)){if(+m[2]<60)return m[1]+':'+m[2];}
+ return null;}
+function detect(u){const local=parseDur(u);if(local)return Promise.resolve(local);
+ if(!u||!/^https?:/.test(u))return Promise.resolve(null);
+ return dbxFetch('https://api.allorigins.win/raw?url='+encodeURIComponent(u),{})
+   .then(r=>r.text()).then(h=>{
+  const m=h.match(/"duration"\s*:\s*"([^"]+)"/i)||h.match(/itemprop="duration"[^>]*content="([^"]+)"/i)||h.match(/"length"\s*:\s*(\d+)/i);
+  return m?parseDur(m[1]):null;}).catch(()=>null);}
+
+function showLight(){
+ const k=light.dataset.kind,id=light.dataset.id,i=+light.dataset.idx;
+ const o=k==='perf'?find(S.performers,id):find(S.categories,id);
+ if(!o)return;const arr=o.pics,cur=arr[i];if(!cur)return;
+ light.innerHTML=`<button class="cl" data-act="lightclose">×</button>
+  ${arr.length>1?'<button class="nav2 l" data-act="lightprev">‹</button><button class="nav2 r" data-act="lightnext">›</button>':''}
+  <img src="${esc(srcOf(cur.src))}" alt=""><div class="cap">${i+1} / ${arr.length}${cur.cat?' · '+esc(cur.cat):''}</div>`;
+ light.classList.add('show');}
+
+light.addEventListener('click',e=>{
+ if(e.target.tagName==='IMG')return;
+ const el=e.target.closest('[data-act]');
+ if(!el){light.classList.remove('show');return;}
+ const a=el.dataset.act,k=light.dataset.kind,id=light.dataset.id;
+ const o=k==='perf'?find(S.performers,id):find(S.categories,id);if(!o)return;
+ const arr=o.pics,i=+light.dataset.idx;
+ if(a==='lightclose')light.classList.remove('show');
+ if(a==='lightnext'){light.dataset.idx=(i+1)%arr.length;showLight();}
+ if(a==='lightprev'){light.dataset.idx=(i-1+arr.length)%arr.length;showLight();}});
+let tx=0;
+light.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+light.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)<45)return;
+ const el=light.querySelector(dx<0?'.nav2.r':'.nav2.l');if(el)el.click();},{passive:true});
+document.addEventListener('keydown',e=>{
+ if(route.name==='login'&&e.key==='Enter'){doLogin();return;}
+ if(!light.classList.contains('show'))return;
+ if(e.key==='Escape')light.classList.remove('show');
+ if(e.key==='ArrowRight'&&light.querySelector('.nav2.r'))light.querySelector('.nav2.r').click();
+ if(e.key==='ArrowLeft'&&light.querySelector('.nav2.l'))light.querySelector('.nav2.l').click();});
+
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushNow();});
+
+/* ---------- Start ---------- */
+(async function init(){
+ db=await openDB();
+ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+ try{const lk=localStorage.getItem('venice_key');if(lk)window.VENICE_KEY=lk;}catch(e){}   /* KI */
+ await load();
+ sort=S.settings.sort||'name';
+ route={name:S.settings.user?'home':'login'};
+ await swAnmelden();
+ const wasAuth=await dbxHandleRedirect();
+ const d=await dbGet('dbx');
+ if(d){try{dbx=JSON.parse(d);}catch(e){}}
+ render();
+ if(dbxErr)say(dbxErr);
+ if(dbx.refresh){if(wasAuth)syncNow(false);else setTimeout(()=>syncNow(false),1500);}
+})();
+})();
+</script>
+</body>
+</html>
