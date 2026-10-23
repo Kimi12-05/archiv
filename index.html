@@ -857,6 +857,7 @@ app.addEventListener('click',e=>{
  else if(a==='home'){stack=[];route={name:'home'};q='';tagFilter='';editFields=false;render();}
  else if(a==='search'){go('search');}
  else if(a==='settings'){if(route.name!=='settings')go('settings');}
+ else if(a==='editmode'){say('Bearbeiten-Modus folgt');}
  else if(a==='go'){go(id,v);}
  else if(a==='acc'){acc[v]=!acc[v];render();}
  else if(a==='close'){closeModal();}
