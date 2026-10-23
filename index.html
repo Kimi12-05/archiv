@@ -964,7 +964,6 @@ app.addEventListener('click',e=>{
   save();closeModal();render();say('Story gespeichert');}
  else if(a==='export'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:IMG})],{type:'application/json'}),'pornoarchiv.json');say('Datei erstellt');}
  else if(a==='exportlite'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:{}})],{type:'application/json'}),'pornoarchiv-klein.json');say('Datei erstellt');}
-```
  else if(a==='doimport'){try{applyImport(JSON.parse($('imp').value));}catch(err){say('JSON fehlerhaft');}}
  else if(a==='reset'){S=DEFAULTS();S.settings.user='Lafai';save();route={name:'home'};stack=[];render();say('Zurückgesetzt');}
 });
