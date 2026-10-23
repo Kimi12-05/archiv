@@ -962,7 +962,6 @@ app.addEventListener('click',e=>{
   else p.stories.push({id:uid('st'),title:t||'Ohne Titel',
    date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),text:tx});
   save();closeModal();render();say('Story gespeichert');}
-```js
  else if(a==='export'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:IMG})],{type:'application/json'}),'pornoarchiv.json');say('Datei erstellt');}
  else if(a==='exportlite'){download(new Blob([JSON.stringify({app:'archiv',v:1,state:S,images:{}})],{type:'application/json'}),'pornoarchiv-klein.json');say('Datei erstellt');}
 ```
